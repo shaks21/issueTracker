@@ -7,6 +7,8 @@ if (!uri) {
 const client = new MongoClient(uri);
 let db: Db;
 
+console.log("MONGODB_URI: "+ uri);
+
 export const connectToDatabase = async (): Promise<{ db: Db }> => {
   try {
     await client.connect();

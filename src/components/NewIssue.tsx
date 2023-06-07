@@ -33,6 +33,7 @@ const NewIssue = () => {
         setUsers(users);
       } else {
         throw new Error("Network response was not ok");
+        
       }
     } catch (error) {
       console.error("Error:", error);
