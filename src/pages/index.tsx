@@ -23,7 +23,7 @@ const Index: NextPage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [setIssues, setUsers]);
 
   return (
     <>

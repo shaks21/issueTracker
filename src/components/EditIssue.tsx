@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
 import { useRouter } from "next/router";
 import { IssueType } from "../types/Issue";
 import useLoggedInUser from "../hooks/useLoggedInUser";
@@ -25,12 +25,8 @@ const EditIssue = () => {
   //const [issueList, setIssueList] = useState<IssueType[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchIssues();
-  }, []);
-
-  const fetchIssues = async () => {
-    if (issues.length < 1 || users.length < 1) {
+  const fetchIssues = useCallback(async () => {
+        if (issues.length < 1 || users.length < 1) {
       try {
         const res = await fetch("../api/issues");
         if (res.ok) {
@@ -52,7 +48,12 @@ const EditIssue = () => {
         // You can display the error message to the user or handle it in any other way you see fit.
       }
     }
-  };
+  }, [setIssues, setUsers, issues.length, users.length]);
+
+  useEffect(() => {
+    fetchIssues();
+  }, [fetchIssues]);
+  
 
   const handleIdChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -368,7 +369,7 @@ const EditIssue = () => {
             Comments:
           </label>
           {comments.map((comment, commentIndex) => (
-            <div>
+            <div key={comment.id}>
             <div key={comment.id} className="flex items-center mb-2 ">
               <textarea
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-blue-50 leading-tight focus:outline-none focus:shadow-outline"

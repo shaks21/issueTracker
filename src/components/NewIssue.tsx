@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { IssueType } from "../types/Issue";
 import useLoggedInUser from "../hooks/useLoggedInUser";
@@ -18,33 +18,36 @@ const NewIssue = () => {
   const [date, setDate] = useState("");
   const [assignee, setAssignee] = useState<{ user: string }[]>([]);
 
-  const [comments, setComments] = useState<{ user: string; comment: string }[]>(
-    []
-  );
+  const [comments, setComments] = useState<
+    { id: number; user: string; comment: string; replies: [] }[]
+  >([]);
 
   const router = useRouter();
-  
-  useEffect(() => {
-    fetchIssues();
-  }, []);
 
-  const fetchIssues = async () => {
-    if (users.length < 1) {
-      try {
-        const res2 = await fetch("../api/users");
-        if (res2.ok) {
-          const users: User[] = await res2.json();
-          setUsers(users);
-        } else {
-          throw new Error("Network response was not ok");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        // You can display the error message to the user or handle it in any other way you see fit.
+ const fetchIssues = useCallback(async () => {
+  if (users.length < 1) {
+    try {
+      const res2 = await fetch("../api/users");
+      if (res2.ok) {
+        const users: User[] = await res2.json();
+        setUsers(users);
+      } else {
+        throw new Error("Network response was not ok");
       }
+    } catch (error) {
+      console.error("Error:", error);
+      // You can display the error message to the user or handle it in any other way you see fit.
     }
-  };
+  }
+}, [users.length, setUsers]);
 
+useEffect(() => {
+  fetchIssues();
+}, [fetchIssues]);
+
+  
+
+  
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -73,7 +76,7 @@ const NewIssue = () => {
         body: JSON.stringify(issue),
       });
       if (res.ok) {
-        alert("Issue created successfully")
+        alert("Issue created successfully");
         router.push("/");
       } else {
         throw new Error("Network response was not ok");
@@ -276,7 +279,12 @@ const NewIssue = () => {
               id="comments"
               onChange={(event) =>
                 setComments([
-                  { user: loggedInUser?.username, comment: event.target.value },
+                  {
+                    id: 1,
+                    user: loggedInUser?.username,
+                    comment: event.target.value,
+                    replies: [],
+                  },
                 ])
               }
             />
